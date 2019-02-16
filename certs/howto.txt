@@ -1,0 +1,27 @@
+Create CA:
+openssl req -new -x509 -days 1095 -keyout ca.key -out ca.pem
+
+Generate device key:
+openssl genrsa -out device.key 2048
+
+Generate device certificate signing request:
+openssl req -new -key device.key -out device.csr
+
+Create derived certificate for device:
+openssl x509 -req -in device.csr -CA ca.pem -CAkey ca.key -CAcreateserial -out device.pem -days 1024 -sha256
+
+Upload CA.pem to DPS. Verify by creating leaf cert with CN set to <VERIFICATION CODE>:
+openssl genrsa -out ca_verify.key 2048
+openssl req -new -key ca_verify.key -out ca_verify.csr
+...
+Organizational Unit Name (eg, section) []:
+Common Name (e.g. server FQDN or YOUR name) []:EE10079A2594695454960FAF49228BDB520AE54596208F8A
+Email Address []:
+...
+openssl x509 -req -in ca_verify.csr -CA ca.pem -CAkey ca.key -CAcreateserial -out ca_verify.pem -days 1024 -sha256
+
+---
+Use this script to create factory/device certificate:
+./gencrt.sh <device-registration-id> <parent-cert>
+#ex for factory: ./gencrt.sh factory-1 ca
+#ex for end-device: ./gencrt.sh device-1 factory-1
