@@ -1,0 +1,14 @@
+openssl rand -out master.key 32
+base64 master.key > master.key.base64
+
+echo -n "device-1" | openssl dgst -sha256 -mac hmac -macopt hexkey:$(cat master.key) -binary | base64 > ddk
+
+or call: ./make_ddk.sh <registration_id> <master.key.hex>
+
+===
+1. Create master/secondary key:
+./make_key.sh master.key
+./make_key.sh second.key
+
+2. Creade DDK for device "device-1":
+./make_ddk.sh device-1 master.key.hex
